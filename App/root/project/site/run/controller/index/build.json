@@ -1,0 +1,14 @@
+{
+  "nodes":{
+      "m0":{"route":"variables/varval" , "inspector":{"name":"_GET"}},
+      "m1":{"route":"check/isset" , "input":{"value":"m0"}},
+      "m2":{"route":"logic/ifelse" , "order":"32" , "input":{"condition":"m1"}, "callback":{ "true":0, "false":1}},
+      "m3":{"route":"variables/varval--" , "inspector":{"name":"i"} , "layer":0},
+      "m4":{"route":"variables/varval++" , "inspector":{"name":"i"} , "layer":1}
+
+  },
+  "layer":{
+    "0":"",
+    "1":""
+  }
+}

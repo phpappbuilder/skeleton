@@ -1,0 +1,23 @@
+{
+    "name": "centurion/skeleton",
+    "description": "great php framework / engine / cms / cmf",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Slavik Redkin",
+            "email": "phantom.0000000000@gmail.com"
+        }
+    ],
+    "autoload":
+    {"psr-4":
+        { "Core\\": "Core/",
+            "App\\": "App/"}
+    },
+    "require": {
+        "klein/klein": "^2.1",
+        "hanneskod/classtools": "~1.0",
+        "tracy/tracy": "^2.4",
+        "nikic/php-parser": "^3.1",
+        "illuminate/database": "^5.6"
+    }
+}

@@ -1,0 +1,22 @@
+CORE -
+
+    Space - Пространства для приложений
+      = Core\Space\
+        - class Manager
+
+          -- Раздел ключ-значение --
+
+          ::GetKeys( 'vendor.app' ) - Возвращает все ключи данного пространства
+          ::GetKey( 'vendor.app.key' ) - Возвращает значение ключа
+          ::GetValues( 'vendor.app.key' ) - Возвращает все варианты значений для данного ключа
+          ::SelectValue( 'vendor.app.key' , 'value' ) - Присваивает ключу выбранное значение из доступных
+
+          -- Раздел коллекции --
+
+          ::GetCollections( 'vendor.app' ) - Возвращает все коллекции данного пространства
+          ::GetCollection( 'vendor.app.collection' ) - Возвращает коллекцию
+          ::CollectionItemStatus( 'vendor.app.collection.item' , bool ) - Возвращает коллекцию
+
+        - class Build
+
+          ::All();

@@ -1,0 +1,10 @@
+{
+  "input":[
+      {"name":"value" , "required":"false"}
+  ],
+
+  "inspector":[
+    {"name":"name" , "type":"text" , "required":"true"}
+  ],
+"return":"false",
+}

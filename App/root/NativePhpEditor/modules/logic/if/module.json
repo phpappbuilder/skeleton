@@ -1,0 +1,16 @@
+{
+
+  "input":[
+      {"name":"condition" , "required":"true"}
+  ],
+
+  "callback":[
+    {"name":"true"}
+  ],
+
+  "inspector":[
+
+
+  ],
+"return":"false"
+}

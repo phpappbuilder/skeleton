@@ -1,0 +1,9 @@
+
+Структура
+/var/space
+
+  коллекции /collection/vendor/app/CollectionName.php
+
+  ключ-значение | /KeyValue/vendor/app/KeyName/
+                +--Value.php
+                +--Variations.php

@@ -1,0 +1,1 @@
+${!inspector.name!} = {!input.value!} ;

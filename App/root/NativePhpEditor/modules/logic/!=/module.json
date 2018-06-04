@@ -1,0 +1,12 @@
+{
+  "input":[
+      {"name":"condition1" , "required":"true"},
+      {"name":"condition2" , "required":"true"}
+  ],
+
+  "inspector":[
+
+
+  ],
+"return":"true"
+}
