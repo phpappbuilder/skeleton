@@ -5,18 +5,13 @@ use PhpParser\Error;
 use PhpParser\NodeDumper;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter;
-use PhpParser\Node;
-use PhpParser\Node\Stmt\Function_;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
-use PhpParser\BuilderFactory;
-use PhpParser\Node\Expr\ArrayItem;
+
 
 
 class Space
 {
 
-    private $temp = 'var/space/';
+    private $temp = 'var/space';
     private $BundleList = [];
     private $KeyList = [];
     private $CollectionList = [];
@@ -124,29 +119,391 @@ class Space
             }
     }
 
-    //Вытаскивает из бандала эллемент находящийся в позиции N
-    private function PositionParser($file , $position) {
-        $code = file_get_contents($file);
+    //возвращает ассоциативный массив из AST
+    private function TreeView ($code)
+        {
+            return json_decode(json_encode($code, JSON_PRETTY_PRINT), true);
+        }
+
+    //Делает из ассоциативного массива AST код
+    private function AstView ($code)
+        {
+            $node = new \PhpParser\JsonDecoder;
+            return $node->decode(json_encode($code));
+        }
+
+    //Генерирует PHP код из AST
+    private function BuildCode($code)
+        {
+            $prettyPrinter = new PrettyPrinter\Standard;
+            return $prettyPrinter->prettyPrintFile($code);
+        }
+
+    //Парсит PHP код в AST
+    private function ParseCode($code){
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         try {
-            $ast = $parser->parse($code);
+            return $parser->parse($code);
         } catch (Error $error) {
             echo "Parse error: {$error->getMessage()}\n";
             return;
         }
-
-        //$dumper = new NodeDumper;
-        $str = $ast[0] -> expr -> items[$position];
-        $str -> value -> items [] =
-
-        return var_export($ast, true);
     }
+
+    //Вытаскивает из бандала коллекцию находящийся в позиции N
+    private function PositionParserCollection($file , $position, $collection = false , $enabled = true) {
+        $ast = $this->ParseCode(file_get_contents($file));
+        $str = $this ->TreeView($ast[0] -> expr -> items[$position]);
+        $str['value']['items'][] = array (
+            'nodeType' => 'Expr_ArrayItem',
+            'key' =>
+                array (
+                    'nodeType' => 'Scalar_String',
+                    'value' => 'bundle',
+                    'attributes' =>
+                        array (
+                            'startLine' => 2,
+                            'endLine' => 2,
+                            'kind' => 2,
+                        ),
+                ),
+            'value' =>
+                array (
+                    'nodeType' => 'Expr_Array',
+                    'items' =>
+                        array (
+                            0 =>
+                                array (
+                                    'nodeType' => 'Expr_ArrayItem',
+                                    'key' =>
+                                        array (
+                                            'nodeType' => 'Scalar_String',
+                                            'value' => 'file',
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 2,
+                                                ),
+                                        ),
+                                    'value' =>
+                                        array (
+                                            'nodeType' => 'Scalar_String',
+                                            'value' => $file,
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 1,
+                                                ),
+                                        ),
+                                    'byRef' => false,
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                        ),
+                                ),
+                            1 =>
+                                array (
+                                    'nodeType' => 'Expr_ArrayItem',
+                                    'key' =>
+                                        array (
+                                            'nodeType' => 'Scalar_String',
+                                            'value' => 'position',
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 2,
+                                                ),
+                                        ),
+                                    'value' =>
+                                        array (
+                                            'nodeType' => 'Scalar_LNumber',
+                                            'value' => $position,
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 10,
+                                                ),
+                                        ),
+                                    'byRef' => false,
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                        ),
+                                ),
+                        ),
+                    'attributes' =>
+                        array (
+                            'startLine' => 2,
+                            'endLine' => 2,
+                            'kind' => 2,
+                        ),
+                ),
+            'byRef' => false,
+            'attributes' =>
+                array (
+                    'startLine' => 2,
+                    'endLine' => 2,
+                ),
+        );
+        if ($collection)
+        {
+            if ($enabled) {$ttr = 'true';} else {$ttr = 'false';}
+            $str['value']['items'][] = array (
+                'nodeType' => 'Expr_ArrayItem',
+                'key' =>
+                    array (
+                        'nodeType' => 'Scalar_String',
+                        'value' => 'enabled',
+                        'attributes' =>
+                            array (
+                                'startLine' => 2,
+                                'endLine' => 2,
+                                'kind' => 2,
+                            ),
+                    ),
+                'value' =>
+                    array (
+                        'nodeType' => 'Expr_ConstFetch',
+                        'name' =>
+                            array (
+                                'nodeType' => 'Name',
+                                'parts' =>
+                                    array (
+                                        0 => $ttr,
+                                    ),
+                                'attributes' =>
+                                    array (
+                                        'startLine' => 2,
+                                        'endLine' => 2,
+                                    ),
+                            ),
+                        'attributes' =>
+                            array (
+                                'startLine' => 2,
+                                'endLine' => 2,
+                            ),
+                    ),
+                'byRef' => false,
+                'attributes' =>
+                    array (
+                        'startLine' => 2,
+                        'endLine' => 2,
+                    ),
+            );
+        }
+        return $str;
+    }
+
+    //Вытаскивает из бандала ключ находящийся в позиции N
+    private function PositionParserKey($file , $position, $checked = false) {
+        $ast = $this->ParseCode(file_get_contents($file));
+        $str = $this ->TreeView($ast[0] -> expr -> items[$position]);
+        $str['value']['items'][] = array (
+            'nodeType' => 'Expr_ArrayItem',
+            'key' =>
+                array (
+                    'nodeType' => 'Scalar_String',
+                    'value' => 'bundle',
+                    'attributes' =>
+                        array (
+                            'startLine' => 2,
+                            'endLine' => 2,
+                            'kind' => 2,
+                        ),
+                ),
+            'value' =>
+                array (
+                    'nodeType' => 'Expr_Array',
+                    'items' =>
+                        array (
+                            0 =>
+                                array (
+                                    'nodeType' => 'Expr_ArrayItem',
+                                    'key' =>
+                                        array (
+                                            'nodeType' => 'Scalar_String',
+                                            'value' => 'file',
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 2,
+                                                ),
+                                        ),
+                                    'value' =>
+                                        array (
+                                            'nodeType' => 'Scalar_String',
+                                            'value' => $file,
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 1,
+                                                ),
+                                        ),
+                                    'byRef' => false,
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                        ),
+                                ),
+                            1 =>
+                                array (
+                                    'nodeType' => 'Expr_ArrayItem',
+                                    'key' =>
+                                        array (
+                                            'nodeType' => 'Scalar_String',
+                                            'value' => 'position',
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 2,
+                                                ),
+                                        ),
+                                    'value' =>
+                                        array (
+                                            'nodeType' => 'Scalar_LNumber',
+                                            'value' => $position,
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                    'kind' => 10,
+                                                ),
+                                        ),
+                                    'byRef' => false,
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                        ),
+                                ),
+                        ),
+                    'attributes' =>
+                        array (
+                            'startLine' => 2,
+                            'endLine' => 2,
+                            'kind' => 2,
+                        ),
+                ),
+            'byRef' => false,
+            'attributes' =>
+                array (
+                    'startLine' => 2,
+                    'endLine' => 2,
+                ),
+        );
+        if ($checked)
+        {
+            $str['value']['items'][] = array (
+                'nodeType' => 'Expr_ArrayItem',
+                'key' =>
+                    array (
+                        'nodeType' => 'Scalar_String',
+                        'value' => 'checked',
+                        'attributes' =>
+                            array (
+                                'startLine' => 2,
+                                'endLine' => 2,
+                                'kind' => 2,
+                            ),
+                    ),
+                'value' =>
+                    array (
+                        'nodeType' => 'Expr_ConstFetch',
+                        'name' =>
+                            array (
+                                'nodeType' => 'Name',
+                                'parts' =>
+                                    array (
+                                        0 => 'true',
+                                    ),
+                                'attributes' =>
+                                    array (
+                                        'startLine' => 2,
+                                        'endLine' => 2,
+                                    ),
+                            ),
+                        'attributes' =>
+                            array (
+                                'startLine' => 2,
+                                'endLine' => 2,
+                            ),
+                    ),
+                'byRef' => false,
+                'attributes' =>
+                    array (
+                        'startLine' => 2,
+                        'endLine' => 2,
+                    ),
+            );
+        }
+        return $str;
+    }
+
+    //в случае отсуствия создаёт дирректории и файлы для коллекции
+    public function isCollection ($vendor , $app , $collection)
+        {
+            if (!is_dir($this->temp.'/'.$vendor)) {mkdir($this->temp.'/'.$vendor, 0700);}
+            if (!is_dir($this->temp.'/'.$vendor.'/'.$app)) {mkdir($this->temp.'/'.$vendor.'/'.$app, 0700);}
+            if (!is_dir($this->temp.'/'.$vendor.'/'.$app.'/'.'collection')) {mkdir($this->temp.'/'.$vendor.'/'.$app.'/'.'collection', 0700);}
+            if (!is_dir($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection)) {mkdir($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection, 0700);}
+            if (!is_file($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/'.'collection.php')) {
+                $code = array (0 => array ('nodeType' => 'Stmt_Return', 'expr' => array ('nodeType' => 'Expr_Array', 'items' => array (), 'attributes' => array ('startLine' => 1, 'endLine' => 3, 'kind' => 2,),), 'attributes' => array ('startLine' => 1, 'endLine' => 3,),),);
+                file_put_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/'.'collection.php', $this->BuildCode($this->AstView($code)));
+            }
+            if (!is_file($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/'.'return.php')) {
+                $code = array (0 => array ('nodeType' => 'Stmt_Return', 'expr' => array ('nodeType' => 'Expr_Array', 'items' => array (), 'attributes' => array ('startLine' => 1, 'endLine' => 3, 'kind' => 2,),), 'attributes' => array ('startLine' => 1, 'endLine' => 3,),),);
+                file_put_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/'.'return.php', $this->BuildCode($this->AstView($code)));
+            }
+        }
+
+    //в случае отсуствия создаёт дирректории и файлы для ключа
+    public function isKey ($vendor , $app , $key)
+        {
+            if (!is_dir($this->temp.'/'.$vendor)) {mkdir($this->temp.'/'.$vendor, 0700);}
+            if (!is_dir($this->temp.'/'.$vendor.'/'.$app)) {mkdir($this->temp.'/'.$vendor.'/'.$app, 0700);}
+            if (!is_dir($this->temp.'/'.$vendor.'/'.$app.'/'.'key')) {mkdir($this->temp.'/'.$vendor.'/'.$app.'/'.'key', 0700);}
+            if (!is_dir($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key)) {mkdir($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key, 0700);}
+            if (!is_file($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/'.'value.php')) {
+                $code = array (0 => array ('nodeType' => 'Stmt_Return', 'expr' => NULL, 'attributes' => array ('startLine' => 1, 'endLine' => 1,),),);
+                file_put_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/'.'value.php', $this->BuildCode($this->AstView($code)));
+            }
+            if (!is_file($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/'.'variations.php')) {
+                $code = array (0 => array ('nodeType' => 'Stmt_Return', 'expr' => array ('nodeType' => 'Expr_Array', 'items' => array (), 'attributes' => array ('startLine' => 1, 'endLine' => 3, 'kind' => 2,),), 'attributes' => array ('startLine' => 1, 'endLine' => 3,),),);
+                file_put_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/'.'variations.php', $this->BuildCode($this->AstView($code)));
+            }
+        }
+
+    //Добавить эллемент коллекции в пространство
+    public function AddToCollection($vendor , $app , $collection , $code)
+        {
+            $this->isCollection($vendor,$app,$collection);
+            $buffer = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/collection.php')));
+            $buffer[0]['expr']['items'][] = $code;
+            file_put_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/collection.php', $this->BuildCode($this->AstView($buffer)));
+        }
+
+    //Добавить ключ в пространство
+    public function AddToKey($vendor , $app , $key , $code)
+        {
+
+        }
 
     public function test( $file )
     {
         $this -> Iterator( $file );
         $this -> BundleParser();
-        return $this ->PositionParser('App/root/core/SpaceBundle.php', 0);
+        $this->AddToCollection('root','core','brb', $this ->PositionParserCollection('App/root/core/SpaceBundle.php', 0, true , true));
+        return $this ->PositionParserCollection('App/root/core/SpaceBundle.php', 0, true , true);
     }
     private function DeletePath( $path ) {} //удаляет из пространств все найденные значения в бандлах по пути $path
     static function Build( $path , $force = false ) {} //Делает сборку приложения из бандлов найденных по заданному пути

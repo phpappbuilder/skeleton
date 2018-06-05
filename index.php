@@ -2,26 +2,23 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Core\Space;
-/*
-  $code = file_get_contents('App/root/core/SpaceBundle.php');
-  $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-  $prettyPrinter = new PrettyPrinter\Standard;
+use PhpParser\Error;
+use PhpParser\NodeDumper;
+use PhpParser\ParserFactory;
 
-  try {
-      // parse
-      $stmts = $parser->parse($code);
+$code = <<<'CODE'
+<?php return ;
+CODE;
 
-      // change
-      print_r(json_encode($stmts[0]->expr->items));
+$parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+try {
+    $ast = $parser->parse($code);
+} catch (Error $error) {
+    echo "Parse error: {$error->getMessage()}\n";
+    return;
+}
 
-      // pretty print
-    //  $code = $prettyPrinter->prettyPrint($stmts);
+echo var_export(json_decode(json_encode($ast, JSON_PRETTY_PRINT), true));
 
-    //  echo $code;
-  } catch (Error $e) {
-      echo 'Parse Error: ', $e->getMessage();
-  }
-
-*/
 $a = new Space();
-print_r( $a->test('App/root/core'));
+print_r( $a->test('App/root'));
