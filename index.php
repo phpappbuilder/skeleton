@@ -5,7 +5,7 @@ use Core\Space;
 use PhpParser\Error;
 use PhpParser\NodeDumper;
 use PhpParser\ParserFactory;
-
+/*
 $code = <<<'CODE'
 <?php return ;
 CODE;
@@ -19,6 +19,6 @@ try {
 }
 
 echo var_export(json_decode(json_encode($ast, JSON_PRETTY_PRINT), true));
-
+*/
 $a = new Space();
-print_r( $a->test('App/root'));
+print_r( $a->Build('App'));

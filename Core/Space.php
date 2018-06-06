@@ -17,24 +17,38 @@ class Space
     private $CollectionList = [];
 
     /* Keys */
-    static function GetKeys( $path ) {} //возвращает спсиок ключей в пространстве
-    static function GetKey( $path ) {} //Возвращает значение ключа
-    static function GetValues( $path ) {} //Возвращает все возможные значения ключа
-    static function SelectValue( $path , $value ) {} //присваивает ключу значение по id из GetValues
+    //возвращает спсиок ключей в пространстве
+    static function GetKeys( $path ) {}
+
+    //Возвращает значение ключа
+    static function GetKey( $path ) {}
+
+    //Возвращает все возможные значения ключа
+    static function GetValues( $path ) {}
+
+    //присваивает ключу значение по id из GetValues
+    static function SelectValue( $path , $value ) {}
 
 
     /* Collections */
-    static function GetCollections( $path ) {} //Возвращает список всех коллекций в пространстве
-    static function GetCollection( $path ) {} //возвращает коллекцию
-    static function ListCollection( $path ) {} // Возврщает коллекцию с названиями и id
-    static function CollectionItemStatus( $path , $id , $enabled = true ) {} //Делает видимым или невидимым эллемент коллекции по id
+    //Возвращает список всех коллекций в пространстве
+    static function GetCollections( $path ) {}
+
+    //возвращает коллекцию
+    static function GetCollection( $path ) {}
+
+    // Возврщает коллекцию с названиями и id
+    static function ListCollection( $path ) {}
+
+    //Делает видимым или невидимым эллемент коллекции по id
+    static function CollectionItemStatus( $path , $id , $enabled = true ) {}
 
 
     /* Build */
     //Рекурсивно бегает по папкам и сохраняет все найденные бандлы в $this->BundleList
     private function Iterator( $dir ) {
       $files = [];
-      $this -> BundleList = [];
+
       if ($handle = opendir($dir))
         {
           while (false !== ($item = readdir($handle)))
@@ -45,7 +59,7 @@ class Space
                   if ($item == 'SpaceBundle.php')
                     {
                       $files[] = $dir.'/'.$item;
-                      $this -> BundleList [] = $dir.'/'.$item;
+                      if (!in_array($dir.'/'.$item, $this -> BundleList)) {$this -> BundleList [] = $dir.'/'.$item;}
                       $this->RecursiveBundle($dir.'/'.$item);
 
                     }
@@ -69,7 +83,8 @@ class Space
                     if(isset($bundle[$i]['Space']))
                         {
 
-                            $this -> BundleList [] = $bundle[$i]['Space'];
+                            if (!in_array($bundle[$i]['Space'], $this -> BundleList))
+                                {$this -> BundleList [] = $bundle[$i]['Space'];}
                             $this -> RecursiveBundle($bundle[$i]['Space']);
                         }
                 }
@@ -495,7 +510,10 @@ class Space
     //Добавить ключ в пространство
     public function AddToKey($vendor , $app , $key , $code)
         {
-
+            $this->isKey($vendor,$app,$key);
+            $buffer = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/variations.php')));
+            $buffer[0]['expr']['items'][] = $code;
+            file_put_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/variations.php', $this->BuildCode($this->AstView($buffer)));
         }
 
     public function test( $file )
@@ -505,14 +523,40 @@ class Space
         $this->AddToCollection('root','core','brb', $this ->PositionParserCollection('App/root/core/SpaceBundle.php', 0, true , true));
         return $this ->PositionParserCollection('App/root/core/SpaceBundle.php', 0, true , true);
     }
-    private function DeletePath( $path ) {} //удаляет из пространств все найденные значения в бандлах по пути $path
-    static function Build( $path , $force = false ) {} //Делает сборку приложения из бандлов найденных по заданному пути
 
+    //сбрасывает кеш
+    private function FlushCache ()
+        {
+            $this->BundleList=[];
+            $this->CollectionList=[];
+            $this->KeyList=[];
+        }
 
+    //Делает сборку приложения из бандлов найденных по заданному пути
+    public function Build( $path ) {
+        $this->FlushCache();
+        $this->Iterator( $path );
+        $this->BundleParser();
+        print_r([$this->BundleList,$this->CollectionList,$this->KeyList]);
+            //collection
+            $count = count($this->CollectionList);
+            for ($i=0;$i<$count;$i++)
+                {
+                    $position = $this->CollectionList[$i];
+                    $this->AddToCollection($position['vendor'],$position['app'],$position['collection'], $this ->PositionParserCollection($position['file'], $position['position'], true , true));
+                }
 
+            //key
+            $count = count($this->KeyList);
+            for ($i=0;$i<$count;$i++)
+                {
+                    $position = $this->KeyList[$i];
+                    $this->AddToKey($position['vendor'],$position['app'],$position['key'], $this ->PositionParserKey($position['file'], $position['position'], false));
+                }
+    }
 
-
-
+    //удаляет из пространств все найденные значения в бандлах по пути $path
+    private function DeletePath( $path ) {}
 
 
     static function pt ()
