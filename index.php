@@ -21,6 +21,7 @@ try {
 
 echo var_export(json_decode(json_encode($ast, JSON_PRETTY_PRINT), true));
 */
-print_r(Core\Space::GetKey('root/core/attr'));
-//$a = new Builder();
+//print_r(Core\Space::GetKey('root/core/attr'));
+$a = new Builder();
 //print_r( $a->Build('App'));
+print_r(  $a->SelectValue('root/core/attr' , 0)  );

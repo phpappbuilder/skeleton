@@ -18,13 +18,15 @@ class Builder
 
     /* Keys */
     //возвращает спсиок ключей в пространстве
-    public function GetKeys( $path ) {}
+    public function GetKeys( $path ) {
+        
+    }
 
     //Возвращает все возможные значения ключа
     public function GetValues( $path ) {
         $space = explode ("/",$path);
-        if (is_file(self::$temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php')) {
-            $file = require (self::$temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php');
+        if (is_file($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php')) {
+            $file = require ($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php');
             for ($i=0;$i<count($file);$i++)
                 {
                     $result[$i]=$file[$i]['name'];
@@ -35,8 +37,88 @@ class Builder
     }
 
     //присваивает ключу значение по id из GetValues
-    public function SelectValue( $path , $value ) {
-        
+    public function SelectValue( $path , $id ) {
+        $space = explode ("/",$path);
+        if (is_file($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php')) {
+            $file = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php')));
+
+            if (isset($file[0]['expr']['items'][$id])) {
+                foreach ($file[0]['expr']['items'] as $key => $value) {
+                    $trans = $value['value']['items'];
+                    $trans_c = count($trans);
+                    for ($i = 0; $i < $trans_c; $i++) {
+                        if ($trans[$i]['key']['value'] == 'checked') {
+                            unset($file[0]['expr']['items'][$key]['value']['items'][$i]);
+                            array_values($file[0]['expr']['items'][$key]['value']['items']);
+                            break;
+                        }
+                    }
+                }
+
+                $file[0]['expr']['items'][$id]['value']['items'][] = array (
+                    'nodeType' => 'Expr_ArrayItem',
+                    'key' =>
+                        array (
+                            'nodeType' => 'Scalar_String',
+                            'value' => 'checked',
+                            'attributes' =>
+                                array (
+                                    'startLine' => 2,
+                                    'endLine' => 2,
+                                    'kind' => 2,
+                                ),
+                        ),
+                    'value' =>
+                        array (
+                            'nodeType' => 'Expr_ConstFetch',
+                            'name' =>
+                                array (
+                                    'nodeType' => 'Name',
+                                    'parts' =>
+                                        array (
+                                            0 => 'true',
+                                        ),
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                        ),
+                                ),
+                            'attributes' =>
+                                array (
+                                    'startLine' => 2,
+                                    'endLine' => 2,
+                                ),
+                        ),
+                    'byRef' => false,
+                    'attributes' =>
+                        array (
+                            'startLine' => 2,
+                            'endLine' => 2,
+                        ),
+                );
+                file_put_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php', $this->BuildCode($this->AstView($file)));
+                for ($i=0;$i<count($file[0]['expr']['items'][$id]['value']['items']);$i++)
+                    {
+                        if ($file[0]['expr']['items'][$id]['value']['items'][$i]['key']['value']=='value')
+                            {
+                                $cont = $file[0]['expr']['items'][$id]['value']['items'][$i]['value'];
+                                if (is_file($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/value.php')) {
+                                    $return = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/value.php')));
+                                    $return[0]['expr'] = $cont;
+                                    file_put_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/value.php', $this->BuildCode($this->AstView($return)));
+                                    return true;
+                                }
+                            }
+                    }
+
+            }
+            return false;
+
+
+
+        }
+        return false;
     }
 
 
@@ -525,10 +607,7 @@ class Builder
 
     public function test( $file )
     {
-        $this -> Iterator( $file );
-        $this -> BundleParser();
-        $this->AddToCollection('root','core','brb', $this ->PositionParserCollection('App/root/core/SpaceBundle.php', 0, true , true));
-        return $this ->PositionParserCollection('App/root/core/SpaceBundle.php', 0, true , true);
+        return json_encode($this->TreeView($this->ParseCode(file_get_contents('var/space/root/core/key/attr/value.php'))));
     }
 
     //сбрасывает кеш
@@ -558,7 +637,7 @@ class Builder
             for ($i=0;$i<$count;$i++)
                 {
                     $position = $this->KeyList[$i];
-                    $this->AddToKey($position['vendor'],$position['app'],$position['key'], $this ->PositionParserKey($position['file'], $position['position'], false));
+                    $this->AddToKey($position['vendor'],$position['app'],$position['key'], $this ->PositionParserKey($position['file'], $position['position'], true));
                 }
     }
 
