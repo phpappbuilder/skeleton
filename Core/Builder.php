@@ -124,13 +124,159 @@ class Builder
 
     /* Collections */
     //Возвращает список всех коллекций в пространстве
-    static function GetCollections( $path ) {}
+    public function GetCollections( $path ) {}
 
     // Возврщает коллекцию с названиями и id
-    static function ListCollection( $path ) {}
+    public function ListCollection( $path ) {
+        $space = explode ("/",$path);
+        if (is_file($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/collection.php')) {
+            $file = require ($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/collection.php');
+            for ($i=0;$i<count($file);$i++)
+            {
+                $result[$i]=$file[$i]['name'];
+            }
+            return $result;
+        }
+        return null;
+    }
 
     //Делает видимым или невидимым эллемент коллекции по id
-    static function CollectionItemStatus( $path , $id , $enabled = true ) {}
+    public function CollectionItemStatus( $path , $id , $enabled = true ) {
+
+        $space = explode ("/",$path);
+        if (is_file($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/collection.php')) {
+            $file = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/collection.php')));
+
+            if (isset($file[0]['expr']['items'][$id])) {
+                $tts = false;
+                if ($enabled)
+                {
+                    for ($i = 0; $i < count($file[0]['expr']['items'][$id]['value']['items']); $i++) {
+
+                        if ($file[0]['expr']['items'][$id]['value']['items'][$i]['key']['value'] == 'enabled') {
+                            $tts = true;
+                            break;
+                        }
+                    }
+                    if (!$tts) {
+                        $file[0]['expr']['items'][$id]['value']['items'][] = array (
+                            'nodeType' => 'Expr_ArrayItem',
+                            'key' =>
+                                array (
+                                    'nodeType' => 'Scalar_String',
+                                    'value' => 'enabled',
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                            'kind' => 2,
+                                        ),
+                                ),
+                            'value' =>
+                                array (
+                                    'nodeType' => 'Expr_ConstFetch',
+                                    'name' =>
+                                        array (
+                                            'nodeType' => 'Name',
+                                            'parts' =>
+                                                array (
+                                                    0 => 'true',
+                                                ),
+                                            'attributes' =>
+                                                array (
+                                                    'startLine' => 2,
+                                                    'endLine' => 2,
+                                                ),
+                                        ),
+                                    'attributes' =>
+                                        array (
+                                            'startLine' => 2,
+                                            'endLine' => 2,
+                                        ),
+                                ),
+                            'byRef' => false,
+                            'attributes' =>
+                                array (
+                                    'startLine' => 2,
+                                    'endLine' => 2,
+                                ),
+                        );
+                    }
+                }
+                else
+                {
+                    for ($i = 0; $i < count($file[0]['expr']['items'][$id]['value']['items']); $i++) {
+
+                        if ($file[0]['expr']['items'][$id]['value']['items'][$i]['key']['value'] == 'enabled') {
+                            unset($file[0]['expr']['items'][$id]['value']['items'][$i]);
+                            array_values($file[0]['expr']['items'][$id]['value']['items']);
+                            break;
+
+                        }
+                    }
+                }
+
+            }
+            file_put_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/collection.php', $this->BuildCode($this->AstView($file)));
+
+            $template = array (
+                0 =>
+                    array (
+                        'nodeType' => 'Stmt_Return',
+                        'expr' =>
+                            array (
+                                'nodeType' => 'Expr_Array',
+                                'items' =>
+                                    array (),
+                                'attributes' =>
+                                    array (
+                                        'startLine' => 3,
+                                        'endLine' => 3,
+                                        'kind' => 2,
+                                    ),
+                            ),
+                        'attributes' =>
+                            array (
+                                'startLine' => 3,
+                                'endLine' => 3,
+                            ),
+                    ),
+            );
+
+
+            $tmp = array (
+                'nodeType' => 'Expr_ArrayItem',
+                'key' => NULL,
+                'value' =>NULL,
+                'byRef' => false,
+                'attributes' =>
+                    array (
+                        'startLine' => 3,
+                        'endLine' => 3,
+                    ),
+            );
+            foreach ($file[0]['expr']['items'] as $key => $value) {
+                $trans = $value['value']['items'];
+                $trans_c = count($trans);
+                for ($i = 0; $i < $trans_c; $i++) {
+                    if ($trans[$i]['key']['value'] == 'enabled') {
+
+                        for ($c = 0; $c < $trans_c; $c++) {
+                            if ($trans[$c]['key']['value'] == 'value') {
+
+                                $tmp['value'] = $trans[$c]['value'];
+                                $template[0]['expr']['items'][] = $tmp;
+                            }
+                        }
+                    }
+                }
+            }
+            file_put_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/return.php',$this->BuildCode($this->AstView($template)));
+            return true;
+            }
+            return false;
+
+    }
 
 
     /* Build */
@@ -607,7 +753,7 @@ class Builder
 
     public function test( $file )
     {
-        return json_encode($this->TreeView($this->ParseCode(file_get_contents('var/space/root/core/key/attr/value.php'))));
+        return var_export($this->TreeView($this->ParseCode(file_get_contents('var/space/root/core/collection/arra/collection.php'))));
     }
 
     //сбрасывает кеш
@@ -630,6 +776,7 @@ class Builder
                 {
                     $position = $this->CollectionList[$i];
                     $this->AddToCollection($position['vendor'],$position['app'],$position['collection'], $this ->PositionParserCollection($position['file'], $position['position'], true , true));
+                    $this->CollectionItemStatus($position['vendor'].'/'.$position['app'].'/'.$position['collection'] , 0 , true);
                 }
 
             //key
@@ -637,7 +784,7 @@ class Builder
             for ($i=0;$i<$count;$i++)
                 {
                     $position = $this->KeyList[$i];
-                    $this->AddToKey($position['vendor'],$position['app'],$position['key'], $this ->PositionParserKey($position['file'], $position['position'], true));
+                    $this->AddToKey($position['vendor'],$position['app'],$position['key'], $this ->PositionParserKey($position['file'], $position['position'], false));
                     if (is_file($this->temp.'/'.$position['vendor'].'/'.$position['app'].'/key/'.$position['key'].'/variations.php') && is_file($this->temp.'/'.$position['vendor'].'/'.$position['app'].'/key/'.$position['key'].'/value.php')) {
                             $a = require($this->temp . '/' . $position['vendor'] . '/' . $position['app'] . '/key/' . $position['key'] . '/variations.php');
                             $b = require($this->temp . '/' . $position['vendor'] . '/' . $position['app'] . '/key/' . $position['key'] . '/value.php');
