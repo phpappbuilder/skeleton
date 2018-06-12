@@ -638,6 +638,14 @@ class Builder
                 {
                     $position = $this->KeyList[$i];
                     $this->AddToKey($position['vendor'],$position['app'],$position['key'], $this ->PositionParserKey($position['file'], $position['position'], true));
+                    if (is_file($this->temp.'/'.$position['vendor'].'/'.$position['app'].'/key/'.$position['key'].'/variations.php') && is_file($this->temp.'/'.$position['vendor'].'/'.$position['app'].'/key/'.$position['key'].'/value.php')) {
+                            $a = require($this->temp . '/' . $position['vendor'] . '/' . $position['app'] . '/key/' . $position['key'] . '/variations.php');
+                            $b = require($this->temp . '/' . $position['vendor'] . '/' . $position['app'] . '/key/' . $position['key'] . '/value.php');
+                            if (count($a)==1 && ($b==NULL || $b==''))
+                                {
+                                    $this->SelectValue($position['vendor'].'/'.$position['app'].'/'.$position['key'] , 0);
+                                }
+                        }
                 }
     }
 
