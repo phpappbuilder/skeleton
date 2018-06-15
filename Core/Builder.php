@@ -893,6 +893,9 @@ class Builder
             for ($i=0;$i<count($check);$i++)
                 {
                     $file = $this->TreeView($this->ParseCode(file_get_contents($check[$i]['file'])));
+                    print_r('2 - ');
+                    var_dump($file[0]['expr']['items'][$check[$i]['position']]);
+
                     unset ($file[0]['expr']['items'][$check[$i]['position']]);
                     $file[0]['expr']['items'] = array_values($file[0]['expr']['items']);
                     file_put_contents($check[$i]['file'] , $this->BuildCode($this->AstView($file)));

@@ -23,5 +23,5 @@ echo var_export(json_decode(json_encode($ast, JSON_PRETTY_PRINT), true));
 */
 //print_r(Core\Space::GetKey('root/core/attr'));
 $a = new Builder();
-print_r( $a->DeletePath('App'));
-//print_r($a->test('root/core/arra'));
+//print_r( $a->DeletePath('App'));
+print_r($a->Build('App'));
