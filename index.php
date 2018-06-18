@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
-
 use Core\Builder;
-
 use PhpParser\Error;
 use PhpParser\NodeDumper;
 use PhpParser\ParserFactory;

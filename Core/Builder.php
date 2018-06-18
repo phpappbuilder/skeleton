@@ -43,9 +43,13 @@ class Builder
             $file = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php')));
             if (count($file[0]['expr']['items'])<1)
                 {
-                    if (!is_file($this->temp.'/'.$space[0].'/'.$space[1].'/'.'key'.'/'.$space[2].'/'.'value.php')) {
+                    if (is_file($this->temp.'/'.$space[0].'/'.$space[1].'/'.'key'.'/'.$space[2].'/'.'value.php')) {
                         $code = array (0 => array ('nodeType' => 'Stmt_Return', 'expr' => NULL, 'attributes' => array ('startLine' => 1, 'endLine' => 1,),),);
                         file_put_contents($this->temp.'/'.$space[0].'/'.$space[1].'/'.'key'.'/'.$space[2].'/'.'value.php', $this->BuildCode($this->AstView($code)));
+                    }
+                    else
+                    {
+                        $this->isKey($space[0],$space[1],$space[2]);
                     }
                     return false;
                 }
@@ -773,6 +777,7 @@ class Builder
 
     //Делает сборку приложения из бандлов найденных по заданному пути
     public function Build( $path ) {
+        $this->DeletePath( $path );
         $this->FlushCache();
         $this->Iterator( $path );
         $this->BundleParser();
@@ -858,13 +863,17 @@ class Builder
                                                         for ($f=0;$f<count($file);$f++)
                                                             {
                                                                 if (in_array($file[$f]['bundle']['file'], $this->BundleList))
-                                                                {$check[] = ["file"=>$collection['droute'][$c].'/collection.php' , "position"=>$f , "type"=>"collection", "path"=>["vendor"=>$vendors['dir'][$i] , "app"=>$app['dir'][$u] , "collection"=>$collection['dir'][$c]]];}
+                                                                {
+
+                                                                    $check[$collection['droute'][$c].'/collection.php'][] = ["file"=>$collection['droute'][$c].'/collection.php' , "position"=>$f , "type"=>"collection", "path"=>["vendor"=>$vendors['dir'][$i] , "app"=>$app['dir'][$u] , "collection"=>$collection['dir'][$c]]];
+
+                                                                }
                                                             }
                                                     }
                                             }
                                     }
                             }
-                        if (in_array("key" , $cont['dir']))//если присутствует папка с коллекциями
+                        if (in_array("key" , $cont['dir']))//если присутствует папка с ключами
                             {
                                 $collection = $this->inDir($app['droute'][$u].'/key');//перебираем keys
                                 for ($c=0;$c<count($collection['droute']);$c++)
@@ -880,7 +889,7 @@ class Builder
                                                 if (in_array($file[$f]['bundle']['file'], $this->BundleList))
                                                 {
                                                     if (isset($file[$f]['checked'])){$checked = true;} else {$checked = false;}
-                                                    $check[] = ["file"=>$collection['droute'][$c].'/variations.php' , "position"=>$f , "type"=>"key" , "checked"=>$checked , "path"=>["vendor"=>$vendors['dir'][$i] , "app"=>$app['dir'][$u] , "key"=>$collection['dir'][$c]]];
+                                                    $check[$collection['droute'][$c].'/variations.php'][] = ["file"=>$collection['droute'][$c].'/variations.php' , "position"=>$f , "type"=>"key" , "checked"=>$checked , "path"=>["vendor"=>$vendors['dir'][$i] , "app"=>$app['dir'][$u] , "key"=>$collection['dir'][$c]]];
                                                 }
                                             }
                                         }
@@ -890,26 +899,37 @@ class Builder
                     }
             }
 
-            for ($i=0;$i<count($check);$i++)
+            foreach($check as $key => $value)
                 {
-                    $file = $this->TreeView($this->ParseCode(file_get_contents($check[$i]['file'])));
-                    print_r('2 - ');
-                    var_dump($file[0]['expr']['items'][$check[$i]['position']]);
+                    $file = $this->TreeView($this->ParseCode(file_get_contents($key)));
+                    $keyReindex = [];
+                    $collectionReindex = [];
+                        for ($i=0;$i<count($value);$i++)
+                            {
+                                unset ($file[0]['expr']['items'][$value[$i]['position']]);
 
-                    unset ($file[0]['expr']['items'][$check[$i]['position']]);
-                    $file[0]['expr']['items'] = array_values($file[0]['expr']['items']);
-                    file_put_contents($check[$i]['file'] , $this->BuildCode($this->AstView($file)));
-                    if ($check[$i]['type']=='key')
-                        {
-                            if ($check[$i]['checked'])
+                                if ($value[$i]['type']=='key')
                                 {
-                                    $this->SelectValue($check[$i]['path']['vendor'].'/'.$check[$i]['path']['app'].'/'.$check[$i]['path']['key'] , 0);
+                                    if ($value[$i]['checked'])
+                                    {
+                                        $keyReindex[]=$i;
+                                    }
                                 }
+                                if ($value[$i]['type']=='collection')
+                                {
+                                    $collectionReindex[]=$i;
+                                }
+                            }
+                    $file[0]['expr']['items'] = array_values($file[0]['expr']['items']);
+                    file_put_contents($key , $this->BuildCode($this->AstView($file)));
+                    for ($re=0;$re<count($keyReindex);$re++)
+                        {
+                            $this->SelectValue($value[$keyReindex[$re]]['path']['vendor'].'/'.$value[$keyReindex[$re]]['path']['app'].'/'.$value[$keyReindex[$re]]['path']['key'] , 0);
                         }
-                    if ($check[$i]['type']=='collection')
-                    {
-                        $this->CollectionItemStatus($check[$i]['path']['vendor'].'/'.$check[$i]['path']['app'].'/'.$check[$i]['path']['collection'] , 0 , true);
-                    }
+                    for ($re=0;$re<count($collectionReindex);$re++)
+                        {
+                            $this->CollectionItemStatus($value[$collectionReindex[$re]]['path']['vendor'].'/'.$value[$collectionReindex[$re]]['path']['app'].'/'.$value[$collectionReindex[$re]]['path']['collection'] , 0 , true);
+                        }
                 }
 
  return $check;
