@@ -1,18 +1,13 @@
 #!/usr/bin/env php
 <?php
-// application.php
-
 require __DIR__.'/vendor/autoload.php';
-
 use Symfony\Component\Console\Application;
 use Core\Space\Cli\Build;
 use Core\Space\Cli\Delete;
 use Core\Space\Cli\Key;
 use Core\Space\Cli\Collection;
 use Core\Space\Get;
-
 $application = new Application();
-
 $application->add(new Build());
 $application->add(new Delete());
 $application->add(new Key());
