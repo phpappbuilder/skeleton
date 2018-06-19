@@ -1,5 +1,5 @@
 <?php
-namespace Core;
+namespace Core\Space;
 
 use PhpParser\Error;
 use PhpParser\NodeDumper;
@@ -29,7 +29,8 @@ class Builder
             $file = require ($this->temp.'/'.$space['0'].'/'.$space['1'].'/key/'.$space['2'].'/variations.php');
             for ($i=0;$i<count($file);$i++)
                 {
-                    $result[$i]=$file[$i]['name'];
+                    if (isset($file[$i]['checked']) && $file[$i]['checked']){$checked = true;} else {$checked = false;}
+                    $result[$i]=["name"=>$file[$i]['name'] , "status"=>$checked];
                 }
             return $result;
         }
@@ -144,7 +145,8 @@ class Builder
             $file = require ($this->temp.'/'.$space['0'].'/'.$space['1'].'/collection/'.$space['2'].'/collection.php');
             for ($i=0;$i<count($file);$i++)
             {
-                $result[$i]=$file[$i]['name'];
+                if (isset($file[$i]['enabled']) && $file[$i]['enabled']){$checked = true;} else {$checked = false;}
+                $result[$i]=["name"=>$file[$i]['name'] , "status"=>$checked];
             }
             return $result;
         }
@@ -711,7 +713,7 @@ class Builder
     }
 
     //в случае отсуствия создаёт дирректории и файлы для коллекции
-    public function isCollection ($vendor , $app , $collection)
+    private function isCollection ($vendor , $app , $collection)
         {
             if (!is_dir($this->temp.'/'.$vendor)) {mkdir($this->temp.'/'.$vendor, 0700);}
             if (!is_dir($this->temp.'/'.$vendor.'/'.$app)) {mkdir($this->temp.'/'.$vendor.'/'.$app, 0700);}
@@ -728,7 +730,7 @@ class Builder
         }
 
     //в случае отсуствия создаёт дирректории и файлы для ключа
-    public function isKey ($vendor , $app , $key)
+    private function isKey ($vendor , $app , $key)
         {
             if (!is_dir($this->temp.'/'.$vendor)) {mkdir($this->temp.'/'.$vendor, 0700);}
             if (!is_dir($this->temp.'/'.$vendor.'/'.$app)) {mkdir($this->temp.'/'.$vendor.'/'.$app, 0700);}
@@ -745,7 +747,7 @@ class Builder
         }
 
     //Добавить эллемент коллекции в пространство
-    public function AddToCollection($vendor , $app , $collection , $code)
+    private function AddToCollection($vendor , $app , $collection , $code)
         {
             $this->isCollection($vendor,$app,$collection);
             $buffer = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'collection'.'/'.$collection.'/collection.php')));
@@ -754,7 +756,7 @@ class Builder
         }
 
     //Добавить ключ в пространство
-    public function AddToKey($vendor , $app , $key , $code)
+    private function AddToKey($vendor , $app , $key , $code)
         {
             $this->isKey($vendor,$app,$key);
             $buffer = $this->TreeView($this->ParseCode(file_get_contents($this->temp.'/'.$vendor.'/'.$app.'/'.'key'.'/'.$key.'/variations.php')));
@@ -781,7 +783,7 @@ class Builder
         $this->FlushCache();
         $this->Iterator( $path );
         $this->BundleParser();
-        print_r([$this->BundleList,$this->CollectionList,$this->KeyList]);
+
             //collection
             $count = count($this->CollectionList);
             for ($i=0;$i<$count;$i++)
@@ -806,6 +808,7 @@ class Builder
                                 }
                         }
                 }
+    return [$this->BundleList,$this->CollectionList,$this->KeyList];
     }
 
     private function inDir ($dirs)

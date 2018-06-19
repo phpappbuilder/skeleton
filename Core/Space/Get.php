@@ -1,9 +1,8 @@
 <?php
 
-namespace Core;
+namespace Core\Space;
 
-
-class Space
+class Get
 {
 
     public static $temp = 'var/space';
