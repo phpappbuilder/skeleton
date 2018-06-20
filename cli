@@ -1,17 +1,21 @@
 #!/usr/bin/env php
 <?php
 require __DIR__.'/vendor/autoload.php';
+
 use Symfony\Component\Console\Application;
 use Core\Space\Cli\Build;
 use Core\Space\Cli\Delete;
 use Core\Space\Cli\Key;
 use Core\Space\Cli\Collection;
 use Core\Space\Get;
+
 $application = new Application();
+
 $application->add(new Build());
 $application->add(new Delete());
 $application->add(new Key());
 $application->add(new Collection());
+
 $space = Get::Collection('root/core/cli');
 if($space!=NULL && count($space)>0)
 {
@@ -20,4 +24,5 @@ if($space!=NULL && count($space)>0)
             $application->add(new $value());
         }
 }
+
 $application->run();

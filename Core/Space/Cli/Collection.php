@@ -66,7 +66,6 @@ class Collection extends Command
                     {
                         if($a->CollectionItemStatus($input->getArgument('key') , $input->getArgument('id') , $status))
                         {
-                            $output->writeln(var_export($status));
                             if ($status) {$output->writeln("[".$input->getArgument('id')."] => enabled");}
                             else {$output->writeln("[".$input->getArgument('id')."] => disabled");}
                         }

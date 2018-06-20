@@ -1,0 +1,13 @@
+{
+    "name": "phpappbuilder/storage",
+    "description": "storage adapter",
+    "type": "centurion-app",
+    "license": "mit",
+    "authors": [
+        {
+            "name": "Вячеслав",
+            "email": "slavik@itservices.in.ua"
+        }
+    ],
+    "require": {}
+}
