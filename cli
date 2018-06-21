@@ -3,11 +3,11 @@
 require __DIR__.'/vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
-use Core\Space\Cli\Build;
-use Core\Space\Cli\Delete;
-use Core\Space\Cli\Key;
-use Core\Space\Cli\Collection;
-use Core\Space\Get;
+use Space\Cli\Build;
+use Space\Cli\Delete;
+use Space\Cli\Key;
+use Space\Cli\Collection;
+use Space\Get;
 
 $application = new Application();
 

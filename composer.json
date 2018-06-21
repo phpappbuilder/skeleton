@@ -16,10 +16,10 @@
     },
     "require": {
         "tracy/tracy": "^2.4",
-        "nikic/php-parser": "4.0.2",
         "symfony/console": "^4.1",
         "oomphinc/composer-installers-extender": "^1.1",
-        "phpappbuilder/storage": "dev-master"
+        "vlucas/phpdotenv": "^2.5@dev",
+        "phpappbuilder/space": "dev-master"
     },
     "extra": {
         "installer-types": ["centurion-app"],
