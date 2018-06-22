@@ -2,7 +2,6 @@
     "name": "phpappbuilder/skeleton",
     "description": "great php framework / engine / cms / cmf",
     "type": "project",
-    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Slavik Redkin",
@@ -11,15 +10,14 @@
     ],
     "autoload":
     {"psr-4":
-        { "Core\\": "Core/",
-            "App\\": "App/"}
+        {"App\\": "App/"}
     },
     "require": {
         "tracy/tracy": "^2.4",
         "symfony/console": "^4.1",
         "oomphinc/composer-installers-extender": "^1.1",
         "vlucas/phpdotenv": "^2.5@dev",
-        "phpappbuilder/space": "dev-master"
+        "phpappbuilder/space": "^1.0"
     },
     "extra": {
         "installer-types": ["centurion-app"],
